@@ -418,13 +418,13 @@ if submitted:
     desc_str = f"## {num_teeth} {beam_type0} in {arc_start}\xb0 - {arc_stop}\xb0 {arc_type}{rev_text}:"
     
     if plus_reverse:
-        b_locs0 = ', '.join([f'{x}\xb0' for x in teeth_locs[:len(teeth_locs)//2]])
-        b_locs1 = ', '.join([f'{x}\xb0' for x in teeth_locs[len(teeth_locs)//2:]])
+        b_locs0 = ', '.join([f'{x:.1f}\xb0' for x in teeth_locs[:len(teeth_locs)//2]])
+        b_locs1 = ', '.join([f'{x:.1f}\xb0' for x in teeth_locs[len(teeth_locs)//2:]])
         
         t_str = f"\n  #### CCW {beam_type0} at {b_locs0}; CW {beam_type0} at {b_locs1}"
         
     else:
-        b_locs0 = ', '.join([f'{x}\xb0' for x in teeth_locs])
+        b_locs0 = ', '.join([f'{x:.1f}\xb0' for x in teeth_locs])
         t_str = f"\n  #### {beam_type0.capitalize()} at {b_locs0}"
     
     
