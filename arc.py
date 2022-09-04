@@ -188,7 +188,7 @@ def cache_sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_st
         
         
         if not arc:
-                deg = (arc_stop-arc_start)*j/num_teeth
+                deg = arc_start + (arc_stop-arc_start)*j/num_teeth
         
         teeth_locs.append(deg)
         
@@ -274,7 +274,7 @@ def sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,
         
         
         if not arc:
-                deg = (arc_stop-arc_start)*j/num_teeth
+                deg = arc_start + (arc_stop-arc_start)*j/num_teeth
         
         teeth_locs.append(deg)
         
@@ -330,7 +330,9 @@ def plots(cont,canv,size,rad,disp_arrows):
         fig,dat = histo(canv,size,rad)
         
         df = pd.Series(dat).astype(int).value_counts().sort_index()/len(dat)
+        df = df.reindex([x for x in range(int(max(dat)))],fill_value=0)
         df = df.to_frame().T
+        
         df.rename(index={0:'Pixel proportion'},inplace=True)
         st.text("")
         st.dataframe(df.style.format('{0:.2%}'))
