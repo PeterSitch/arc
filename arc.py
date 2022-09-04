@@ -144,8 +144,8 @@ def histo(canv,size,rad):
 
     return fig,dat
 
-@st.experimental_memo(max_entries=20,show_spinner = False)  
-def sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,plus_reverse=False,_bar=None):
+@st.experimental_memo(max_entries=20,show_spinner = False)
+def cache_sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,plus_reverse=False,_bar=None, _cont = None,teeth_arrows = False):
 
     if rad is None:
         rad = size//4
@@ -197,6 +197,105 @@ def sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,
             
             #print(j,deg,depth)
             canv = draw_bar(canv,size,deg,depth,1.1*thick,rad)
+            
+            
+            if _cont is not None:
+                #with _cont.container():
+                 
+                disp_arrows = teeth_locs if teeth_arrows else None
+                 
+                plots(_cont,canv,size,rad,disp_arrows)
+                    
+                    #st.markdown(f'### Coverage plot')
+                    #st.pyplot(arc_plot(canv,size,rad,teeth_locs=None))
+            
+            
+            if plat:
+                canv = draw_plateau(canv,size,deg,depth,1.1*thick,rad)
+            
+            if arc:
+                if not reverse:
+                    deg += (arc_stop-arc_start)/(len(range(rad,-rad,-thick))*num_teeth)
+                else:
+                    deg += -(arc_stop-arc_start)/(len(range(rad,-rad,-thick))*num_teeth)
+            
+            #if giffing:
+            #    arc_plot(canv,fname=f'{k}.png')
+            #    k+=1
+            
+            if _bar is not None:
+            
+                prog = (i+1+(j*2*rad//thick))/(arc_mult*num_teeth*2*rad//thick)
+            
+                _bar.progress(min(1,prog))
+            
+    return canv, teeth_locs
+  
+def sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,plus_reverse=False,_bar=None, _cont = None,teeth_arrows = False):
+
+    if rad is None:
+        rad = size//4
+    
+       #200
+    thick = rad//5    #20
+
+    plat=False
+
+    canv = np.empty((size,size))
+    canv.fill(np.nan)
+
+    teeth_locs = []
+
+    #giffing=False
+
+
+
+    deg = arc_start
+
+    #if reverse:
+    #    deg = arc_stop
+
+    if plus_reverse:
+        arc_mult=2
+    else:
+        arc_mult=1
+
+    k=0
+
+    
+        
+
+    for j in range(arc_mult*num_teeth):
+        
+        if arc and plus_reverse and j >= num_teeth:
+            reverse=True
+        else:
+            reverse=False
+        
+        
+        if not arc:
+                deg = (arc_stop-arc_start)*j/num_teeth
+        
+        teeth_locs.append(deg)
+        
+        for i, depth in enumerate (range(rad,-rad,-thick)):
+
+            
+            #print(j,deg,depth)
+            canv = draw_bar(canv,size,deg,depth,1.1*thick,rad)
+            
+            
+            if _cont is not None:
+                #with _cont.container():
+                 
+                disp_arrows = teeth_locs if teeth_arrows else None
+                 
+                plots(_cont,canv,size,rad,disp_arrows)
+                    
+                    #st.markdown(f'### Coverage plot')
+                    #st.pyplot(arc_plot(canv,size,rad,teeth_locs=None))
+            
+            
             if plat:
                 canv = draw_plateau(canv,size,deg,depth,1.1*thick,rad)
             
@@ -219,6 +318,29 @@ def sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_stop=90,
     return canv, teeth_locs
 
 
+
+def plots(cont,canv,size,rad,disp_arrows):
+
+
+    with cont[0].container():
+        st.markdown('### Coverage plot')
+        st.pyplot(arc_plot(canv,size,rad,disp_arrows))
+    with cont[1].container():
+        st.markdown('### Pixel coverage counts within target')
+        fig,dat = histo(canv,size,rad)
+        
+        df = pd.Series(dat).astype(int).value_counts().sort_index()/len(dat)
+        df = df.to_frame().T
+        df.rename(index={0:'Pixel proportion'},inplace=True)
+        st.text("")
+        st.dataframe(df.style.format('{0:.2%}'))
+        st.text("")
+        st.text("")
+        st.pyplot(fig )
+
+
+
+
 st.title('Arc coverage sim')
 
 with st.form("arc_params"):
@@ -230,6 +352,8 @@ with st.form("arc_params"):
     
         arc = st.checkbox('Arc?',value=True)
         teeth_arrows=st.checkbox('Display beam/teeth arrows?',value=False)
+        view_as_sim =st.checkbox('Display plots as generated',value=False)
+        
     with col2:
     
         num_teeth = st.slider('number of teeth/beams',min_value=1,max_value=10,value=2,step = 1)
@@ -250,12 +374,22 @@ if submitted:
     rad = round(size/3)
     
     
+    teeth_locs = []
+    
+    for i in range(num_teeth):
+    
+        _d = arc_start + i*(arc_stop-arc_start)/num_teeth
+    
+        teeth_locs.append(_d)
+    
+    if plus_reverse:
+        for i in range(num_teeth):
+    
+            _d = arc_stop - i*(arc_stop-arc_start)/num_teeth
+    
+            teeth_locs.append(_d)
     
     
-    with st.spinner('Constructing...'):
-        my_bar = st.progress(0)    
-        canv, teeth_locs = sim_arc(size=size,rad=rad,arc_start=arc_start,arc_stop=arc_stop,arc=arc,num_teeth=num_teeth,plus_reverse=plus_reverse,
-        _bar=my_bar)
     
     disp_arrows = teeth_locs if teeth_arrows else None
     
@@ -296,20 +430,41 @@ if submitted:
     st.text("")
     st.text("")
     
+    prog_cont = st.empty()
+    
+    #plots_cont = st.container()
+    
+    
     col1,col2 = st.columns(2)
     
-    with col1:
-        st.markdown('### Coverage plot')
-        st.pyplot(arc_plot(canv,size,rad,disp_arrows))
-    with col2:
-        st.markdown('### Pixel coverage counts within target')
-        fig,dat = histo(canv,size,rad)
+    
+    
+    with st.spinner('Constructing...'):
+        #prog_cont = st.empty()
+        my_bar = prog_cont.progress(0)
+
         
-        df = pd.Series(dat).astype(int).value_counts().sort_index()/len(dat)
-        df = df.to_frame().T
-        df.rename(index={0:'Pixel proportion'},inplace=True)
-        st.text("")
-        st.dataframe(df.style.format('{0:.2%}'))
-        st.text("")
-        st.text("")
-        st.pyplot(fig )
+        if view_as_sim:
+        
+            _view_cont= (col1.empty(),col2.empty())
+        
+            canv, teeth_locs = sim_arc(size=size,rad=rad,arc_start=arc_start,arc_stop=arc_stop,arc=arc,num_teeth=num_teeth,plus_reverse=plus_reverse,
+            _bar=my_bar,_cont = _view_cont,teeth_arrows = teeth_arrows)
+            
+        else:
+            _view_cont= None
+        
+            canv, teeth_locs = cache_sim_arc(size=size,rad=rad,arc_start=arc_start,arc_stop=arc_stop,arc=arc,num_teeth=num_teeth,plus_reverse=plus_reverse,
+            _bar=my_bar,_cont = _view_cont,teeth_arrows = teeth_arrows)
+    
+    prog_cont.empty()
+    
+    #if view_as_sim:
+    #    _view_cont.empty()
+    
+    if not view_as_sim:
+        plots((col1,col2),canv,size,rad,disp_arrows)
+    
+    
+    
+    
