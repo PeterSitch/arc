@@ -204,7 +204,7 @@ def cache_sim_arc(size = 500,rad = None, num_teeth=2,arc=True,arc_start=0,arc_st
                  
                 disp_arrows = teeth_locs if teeth_arrows else None
                  
-                plots(_cont,canv,size,rad,disp_arrows)
+                #plots(_cont,canv,size,rad,disp_arrows)
                     
                     #st.markdown(f'### Coverage plot')
                     #st.pyplot(arc_plot(canv,size,rad,teeth_locs=None))
