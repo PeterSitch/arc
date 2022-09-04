@@ -330,7 +330,7 @@ def plots(cont,canv,size,rad,disp_arrows):
         fig,dat = histo(canv,size,rad)
         
         df = pd.Series(dat).astype(int).value_counts().sort_index()/len(dat)
-        df = df.reindex([x for x in range(int(max(dat)))],fill_value=0)
+        df = df.reindex([x for x in range(int(max(dat))+1)],fill_value=0)
         df = df.to_frame().T
         
         df.rename(index={0:'Pixel proportion'},inplace=True)
@@ -404,7 +404,7 @@ if submitted:
     
     #toothy = 'tooth' if num_teeth==1 else 'teeth'
     
-    arc_type = 'arc' if arc else 'beam'
+    arc_type = 'arc' if arc else ''
     
     #if num_teeth ==1 and not plus_reverse:
     #    beam_type = f'tooth' if arc else f'beam'
@@ -415,7 +415,7 @@ if submitted:
     
     
     
-    desc_str = f"## {num_teeth} {beam_type0} {arc_start}\xb0 - {arc_stop}\xb0 {arc_type}{rev_text}:"
+    desc_str = f"## {num_teeth} {beam_type0} in {arc_start}\xb0 - {arc_stop}\xb0 {arc_type}{rev_text}:"
     
     if plus_reverse:
         b_locs0 = ', '.join([f'{x}\xb0' for x in teeth_locs[:len(teeth_locs)//2]])
