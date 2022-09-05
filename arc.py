@@ -324,7 +324,7 @@ def plots(cont,canv,size,rad,disp_arrows):
 
     with cont[0].container():
         st.markdown('### Coverage plot')
-        st.pyplot(arc_plot(canv,size,rad,disp_arrows))
+        st.pyplot(fig=arc_plot(canv,size,rad,disp_arrows), clear_figure=True )
     with cont[1].container():
         st.markdown('### Pixel coverage counts within target')
         fig,dat = histo(canv,size,rad)
@@ -338,7 +338,7 @@ def plots(cont,canv,size,rad,disp_arrows):
         st.dataframe(df.style.format('{0:.2%}'))
         st.text("")
         st.text("")
-        st.pyplot(fig )
+        st.pyplot(fig=fig, clear_figure=True )
 
 
 
