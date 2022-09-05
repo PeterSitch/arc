@@ -347,14 +347,15 @@ st.title('Arc coverage sim')
 
 with st.form("arc_params"):
    
+    st.markdown('#### Arc settings')
     col1,col2 = st.columns(2)
     
     with col1:
         (arc_start,arc_stop) = st.slider('arc_length',min_value=0,max_value=360,value=(0,90),step = 5)
     
-        arc = st.checkbox('Arc?',value=True)
-        teeth_arrows=st.checkbox('Display beam/teeth arrows?',value=False)
-        view_as_sim =st.checkbox('Display plots as generated',value=False)
+        arc = st.checkbox('Sawtooth arc? (null is beams at arc teeth angles)',value=True)
+        #teeth_arrows=st.checkbox('Display beam/teeth arrows?',value=False)
+        #view_as_sim =st.checkbox('Display plots as generated',value=False)
         
     with col2:
     
@@ -362,7 +363,18 @@ with st.form("arc_params"):
         
         plus_reverse=st.checkbox('Plus reverse arc? (doubles number of teeth)',value=False)
     
+    st.text("")
+    st.markdown('#### Display settings')
+    col1,col2 = st.columns(2)
     
+    with col1:
+        teeth_arrows=st.checkbox('Display beam/teeth arrows?',value=False)
+    with col2:
+        view_as_sim =st.checkbox('Display plots as generated',value=False)
+    st.text("")
+    st.text("")
+    
+    #col1,col2,col3 = st.columns(3)
     submitted  = st.form_submit_button('Sim')#, on_click=sim(arc_start=arc_start,arc_stop=arc_stop))
     
 if submitted:
