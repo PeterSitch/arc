@@ -45,26 +45,31 @@ def draw_bar(canv,size,deg,depth,thick,rad):
 def arc_plot(canv,size,rad,teeth_locs=None):
 
     max_num = int(np.nanmax(canv))
-
-    cmap = mpl.colors.ListedColormap(['white',
-                                     '#1f77b4',
-                                     '#d62728',
-                                     '#e377c2',
-                                     '#17becf',
-                                     '#9467bd',
-                                     '#ff7f0e',
-                                     '#7f7f7f',
-                                     '#2ca02c',
-                                     '#bcbd22',
-                                     '#1f77b4',
-                                     '#d62728',
-                                     '#e377c2',
-                                     '#17becf',
-                                     '#9467bd',
-                                     '#ff7f0e',
-                                     '#7f7f7f',
-                                     '#2ca02c',
-                                     '#bcbd22'][:max_num+1])
+    
+    cols = ['white',
+     '#1f77b4',
+     '#d62728',
+     '#e377c2',
+     '#17becf',
+     '#9467bd',
+     '#ff7f0e',
+     '#7f7f7f',
+     '#2ca02c',
+     '#bcbd22',
+     '#1f77b4',
+     '#d62728',
+     '#e377c2',
+     '#17becf',
+     '#9467bd',
+     '#ff7f0e',
+     '#7f7f7f',
+     '#2ca02c',
+     '#bcbd22']
+     
+    cols = cols+cols[1:]+cols[1:]
+    
+    
+    cmap = mpl.colors.ListedColormap(cols[:max_num+1])
     norm = mpl.colors.BoundaryNorm(np.arange(-0.5,max_num), cmap.N) 
 
 
@@ -135,6 +140,8 @@ def histo(canv,size,rad):
      '#7f7f7f',
      '#2ca02c',
      '#bcbd22']
+     
+    cols = cols+cols[1:]+cols[1:]
 
     for i,patch in enumerate (patches):
         patch.set_facecolor(cols[i])
